@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#2d6a4f">
+  <meta name="description" content="AgriScan - AI-Powered Crop Disease Detection & Farming Assistant">
+  <title>AgriScan - Smart Farming Assistant</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌿</text></svg>">
+</head>
+<body>
+  <div class="app-container">
+
+    <!-- Header -->
+    <header class="app-header">
+      <div class="header-left">
+        <div class="header-logo">🌿</div>
+        <div>
+          <div class="header-title">AgriScan</div>
+          <div class="header-subtitle">Smart Farming Assistant</div>
+        </div>
+      </div>
+      <div class="header-actions">
+        <span id="headerUserName" style="color:white;font-size:13px;font-weight:600;display:none;cursor:default"></span>
+        <button class="header-btn" id="headerAuthAction" title="Login / Sign Up" style="font-size:18px">👤</button>
+        <button class="header-btn" onclick="navigateTo('chatbot')" title="AI Chatbot">💬</button>
+        <button class="header-btn" onclick="navigateTo('voice')" title="Voice Assistant">🎤</button>
+        <button class="header-btn" onclick="event.stopPropagation(); if(typeof showLocationPicker === 'function') { showLocationPicker(); } else { navigateTo('weather'); }" title="Change Location" style="font-size:13px">📍</button>
+      </div>
+    </header>
+
+    <!-- ==================== PAGE: AUTH (Login / Sign Up) ==================== -->
+    <div class="page active" id="page-auth">
+      <div style="padding:30px 16px 16px">
+        <div style="text-align:center;margin-bottom:24px">
+          <div style="font-size:60px;margin-bottom:8px">🌿</div>
+          <div style="font-size:22px;font-weight:700;color:var(--green-700)">AgriScan</div>
+          <div style="font-size:13px;color:var(--text-muted);margin-top:4px">Smart Farming Assistant</div>
+        </div>
+
+        <div id="authError" style="display:none;background:var(--red-light);color:var(--red);padding:10px 14px;border-radius:var(--radius-sm);font-size:13px;margin-bottom:12px;text-align:center"></div>
+
+        <!-- Login Form -->
+        <div id="loginForm">
+          <div style="margin-bottom:14px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px">📧 Email</label>
+            <input type="email" id="loginEmail" placeholder="Enter your email" style="width:100%;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" autocomplete="email">
+          </div>
+          <div style="margin-bottom:6px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px">🔒 Password</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="loginPassword" placeholder="Enter your password" style="flex:1;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" autocomplete="current-password">
+              <button class="btn btn-sm btn-secondary" onclick="togglePasswordVisibility('loginPassword')" style="width:44px;padding:0;font-size:14px;flex-shrink:0">👁️</button>
+            </div>
+          </div>
+          <div style="text-align:right;margin-bottom:16px">
+            <button onclick="handleForgotPassword()" style="background:none;border:none;color:var(--green-600);font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline">Forgot password?</button>
+          </div>
+          <button class="btn btn-primary" onclick="handleLogin()">Login</button>
+          <div id="loginToggle" style="text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted)">
+            Don't have an account? <button onclick="switchToSignup()" style="background:none;border:none;color:var(--green-600);cursor:pointer;font-family:inherit;font-weight:600;text-decoration:underline">Sign Up</button>
+          </div>
+        </div>
+
+        <!-- Sign Up Form -->
+        <div id="signupForm" style="display:none">
+          <div style="margin-bottom:14px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px">👤 Your Name</label>
+            <input type="text" id="signupName" placeholder="e.g. Ram Singh" style="width:100%;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" autocomplete="name">
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px">📧 Email</label>
+            <input type="email" id="signupEmail" placeholder="Enter your email" style="width:100%;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" autocomplete="email">
+          </div>
+          <div style="margin-bottom:14px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px">🔒 Password</label>
+            <div style="display:flex;gap:8px">
+              <input type="password" id="signupPassword" placeholder="Create a password (min 4 chars)" style="flex:1;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" autocomplete="new-password">
+              <button class="btn btn-sm btn-secondary" onclick="togglePasswordVisibility('signupPassword')" style="width:44px;padding:0;font-size:14px;flex-shrink:0">👁️</button>
+            </div>
+          </div>
+          <div style="margin-bottom:16px">
+            <label style="font-size:13px;font-weight:600;color:var(--text);display:block;margin-bottom:4px">🔒 Confirm Password</label>
+            <input type="password" id="signupConfirm" placeholder="Re-enter password" style="width:100%;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" autocomplete="new-password">
+          </div>
+          <button class="btn btn-primary" onclick="handleSignup()">Create Account</button>
+          <div id="signupToggle" style="display:none;text-align:center;margin-top:14px;font-size:13px;color:var(--text-muted)">
+            Already have an account? <button onclick="switchToLogin()" style="background:none;border:none;color:var(--green-600);cursor:pointer;font-family:inherit;font-weight:600;text-decoration:underline">Login</button>
+          </div>
+        </div>
+
+        <div style="margin-top:24px;padding:14px;background:var(--green-50);border-radius:var(--radius-sm);text-align:center">
+          <div style="font-size:12px;color:var(--text-muted);line-height:1.5">
+            Your data stays on your device. No internet account needed.<br>
+            🌾 किसान भाइयों के लिए मुफ्त कृषि सहायक
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE: HOME ==================== -->
+    <div class="page" id="page-home">
+      <!-- Hero -->
+      <div class="dashboard-hero">
+        <div class="hero-greeting" id="heroGreeting">Good Morning, Farmer!</div>
+        <div class="hero-title">🌾 Kisan Saathi</div>
+        <div class="hero-subtitle" id="currentDateTime"></div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="totalScans">0</div>
+            <div class="hero-stat-label">Total Scans</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="healthyCount" style="color:#95d5b2">0</div>
+            <div class="hero-stat-label">Healthy</div>
+          </div>
+          <div class="hero-stat">
+            <div class="hero-stat-value" id="diseaseCount" style="color:#ffd166">0</div>
+            <div class="hero-stat-label">Issues Found</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <div class="quick-action" data-page="disease">
+          <div class="quick-action-icon">📸</div>
+          <div class="quick-action-title">Scan Leaf</div>
+          <div class="quick-action-desc">Detect diseases</div>
+        </div>
+        <div class="quick-action" data-page="weather">
+          <div class="quick-action-icon">🌤️</div>
+          <div class="quick-action-title">Weather</div>
+          <div class="quick-action-desc">Forecasts & tips</div>
+        </div>
+        <div class="quick-action" data-page="voice">
+          <div class="quick-action-icon">🎤</div>
+          <div class="quick-action-title">Voice Assist</div>
+          <div class="quick-action-desc">Ask in your language</div>
+        </div>
+        <div class="quick-action" data-page="tips">
+          <div class="quick-action-icon">🌱</div>
+          <div class="quick-action-title">Farming Tips</div>
+          <div class="quick-action-desc">Expert guidance</div>
+        </div>
+      </div>
+
+      <!-- Recent Reports -->
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📋 Recent Health Reports</div>
+          <span class="card-badge badge-green" id="reportCount">0</span>
+        </div>
+        <div id="reportsList">
+          <div style="text-align:center;padding:30px 16px;color:var(--text-muted);font-size:14px">
+            📋 No health reports yet.<br>Upload a leaf image to get started!
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Tips -->
+      <div class="card" style="background:linear-gradient(135deg, #eaf8ed, #d8f3dc)">
+        <div class="card-title mb-12">💡 Quick Tip</div>
+        <p style="font-size:13px;color:var(--text-secondary);line-height:1.6">
+          Did you know? Regular field monitoring can reduce crop losses by up to 30%. Walk through your fields at least once a week and look for early signs of pests or diseases.
+        </p>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE: DISEASE DETECTION ==================== -->
+    <div class="page" id="page-disease">
+      <div class="card" style="background:linear-gradient(135deg, var(--green-700), var(--green-500));color:white;border:none">
+        <div style="font-size:14px;font-weight:600;margin-bottom:4px">📸 Leaf Disease Detection</div>
+        <div style="font-size:12px;opacity:0.9">Upload or capture a leaf photo for AI analysis</div>
+      </div>
+
+      <div class="card">
+        <div class="upload-zone" id="uploadZone">
+          <div class="upload-icon">🍃</div>
+          <div class="upload-text">Tap to upload a leaf photo</div>
+          <div class="upload-hint">or drag & drop an image here</div>
+          <img class="upload-preview" id="leafPreview" alt="Leaf preview">
+          <input type="file" class="upload-input" id="leafUpload" accept="image/*">
+        </div>
+
+        <div class="capture-actions">
+          <button class="btn btn-outline btn-sm" id="captureBtn" onclick="document.getElementById('cameraInput').click()" style="flex:1">
+            📷 Capture
+          </button>
+          <input type="file" id="cameraInput" accept="image/*" capture="environment" style="display:none">
+          <button class="btn btn-secondary btn-sm" id="changeBtn" style="display:none;flex:1">
+            🔄 Change Photo
+          </button>
+        </div>
+
+        <button class="btn btn-primary mt-12" id="analyzeBtn" style="display:none">
+          🔍 Analyze with AI
+        </button>
+
+        <progress id="analysisProgress" style="width:100%;height:6px;border-radius:3px;margin-top:12px;display:none;accent-color:var(--green-500)"></progress>
+      </div>
+
+      <div id="diseaseResults"></div>
+    </div>
+
+    <!-- ==================== PAGE: WEATHER ==================== -->
+    <div class="page" id="page-weather">
+      <div class="card" style="background:linear-gradient(135deg, #118ab2, #1a8fc4);color:white;border:none;padding-bottom:8px">
+        <div style="font-size:14px;font-weight:600">🌤️ Weather & Farming Advisory</div>
+        <div style="font-size:12px;opacity:0.9">Current conditions, forecast & crop recommendations</div>
+      </div>
+      <div class="card" style="padding:10px 14px;display:flex;align-items:center;justify-content:space-between;gap:8px;border-left:3px solid var(--green-500)">
+        <div style="display:flex;align-items:center;gap:8px;flex:1;min-width:0">
+          <span style="font-size:18px">📍</span>
+          <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" id="locationDisplay">Your Location</div>
+        </div>
+        <button class="btn btn-sm btn-secondary" onclick="if(typeof showLocationPicker === 'function') showLocationPicker()" style="width:auto;white-space:nowrap;font-size:12px;padding:6px 12px">
+          🔄 Change
+        </button>
+      </div>
+      <div id="weatherDisplay">
+        <div style="text-align:center;padding:40px 16px;color:var(--text-muted)">
+          <div style="font-size:40px;margin-bottom:12px">🌤️</div>
+          <div>Loading weather data...</div>
+          <div class="loading-spinner mt-16"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE: VOICE ASSISTANT ==================== -->
+    <div class="page" id="page-voice">
+      <div class="card" style="background:linear-gradient(135deg, var(--green-700), var(--green-500));color:white;border:none">
+        <div style="font-size:14px;font-weight:600">🎤 Multilingual Voice Assistant</div>
+        <div style="font-size:12px;opacity:0.9">Ask farming questions in your language</div>
+      </div>
+
+      <div class="card">
+        <div class="voice-container">
+          <div class="voice-avatar" id="voiceAvatar">🤖</div>
+          <div class="voice-status" id="voiceStatus">Tap the microphone to speak</div>
+
+          <select class="voice-lang-select" id="voiceLangSelect">
+            <option value="hi-IN">हिन्दी (Hindi)</option>
+            <option value="en-IN">English (Indian)</option>
+            <option value="bn-IN">বাংলা (Bengali)</option>
+            <option value="te-IN">తెలుగు (Telugu)</option>
+            <option value="mr-IN">मराठी (Marathi)</option>
+            <option value="ta-IN">தமிழ் (Tamil)</option>
+            <option value="gu-IN">ગુજરાતી (Gujarati)</option>
+            <option value="kn-IN">ಕನ್ನಡ (Kannada)</option>
+            <option value="ml-IN">മലയാളം (Malayalam)</option>
+            <option value="pa-IN">ਪੰਜਾਬੀ (Punjabi)</option>
+          </select>
+
+          <button class="btn btn-gold mt-16" onclick="toggleVoice()" style="max-width:200px;margin:16px auto 0">
+            🎤 Start Speaking
+          </button>
+
+          <div class="voice-transcript">
+            <div class="voice-transcript-label">You said</div>
+            <div class="voice-transcript-text" id="voiceTranscriptText">—</div>
+          </div>
+
+          <div class="voice-response">
+            <div class="voice-response-label">AgriScan Response</div>
+            <div class="voice-response-text" id="voiceResponseText">Ask a question by tapping the microphone button above</div>
+          </div>
+
+          <div style="margin-top:16px;padding:12px;background:var(--green-50);border-radius:10px">
+            <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">
+              <strong>💡 Try asking:</strong><br>
+              • "What disease is on my rice leaf?"<br>
+              • "मेरी फसल में कीट लग गए हैं क्या करूं?"<br>
+              • "Best fertilizer for wheat crop?"<br>
+              • "आज मौसम कैसा रहेगा?"<br>
+              • "Organic pest control methods?"
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE: FARMING TIPS ==================== -->
+    <div class="page" id="page-tips">
+      <div class="card" style="background:linear-gradient(135deg, var(--green-700), var(--green-500));color:white;border:none">
+        <div style="font-size:14px;font-weight:600">🌱 Smart Farming Tips</div>
+        <div style="font-size:12px;opacity:0.9">Expert advice for better crop management</div>
+      </div>
+
+      <div class="tips-grid">
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#eaf8ed">🌿</div>
+          <div class="tip-content">
+            <div class="tip-category">Soil Health</div>
+            <div class="tip-title">Test Your Soil Regularly</div>
+            <div class="tip-desc">Get soil tested every 2-3 years. Add organic matter like vermicompost to improve soil structure and fertility.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#e3f2fd">💧</div>
+          <div class="tip-content">
+            <div class="tip-category">Water Management</div>
+            <div class="tip-title">Use Drip Irrigation</div>
+            <div class="tip-desc">Drip irrigation saves 40-50% water compared to flood irrigation and increases yield by 20-30%. Apply for government subsidy.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#fff3e0">🌾</div>
+          <div class="tip-content">
+            <div class="tip-category">Crop Rotation</div>
+            <div class="tip-title">Practice Crop Rotation</div>
+            <div class="tip-desc">Rotate legumes with cereals to fix nitrogen naturally. This reduces pest pressure and improves soil health.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#fce4e4">🐛</div>
+          <div class="tip-content">
+            <div class="tip-category">Pest Control</div>
+            <div class="tip-title">Monitor Fields Weekly</div>
+            <div class="tip-desc">Walk through your fields every week. Early pest detection can prevent up to 90% of crop damage.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#e8f5e9">🧪</div>
+          <div class="tip-content">
+            <div class="tip-category">Fertilizer</div>
+            <div class="tip-title">Balanced NPK Application</div>
+            <div class="tip-desc">Apply fertilizers based on soil test. General recommendation: N 120 kg, P 60 kg, K 40 kg per hectare for most crops.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#fff8e1">☀️</div>
+          <div class="tip-content">
+            <div class="tip-category">Seasonal Guide</div>
+            <div class="tip-title">Plan by Season</div>
+            <div class="tip-desc">Kharif (Jun-Oct): Rice, maize, cotton. Rabi (Nov-Apr): Wheat, mustard, peas. Zaid (Apr-Jun): Watermelon, cucumber.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#f3e5f5">🌱</div>
+          <div class="tip-content">
+            <div class="tip-category">Seed Selection</div>
+            <div class="tip-title">Use Certified Seeds</div>
+            <div class="tip-desc">Always buy certified seeds from government outlets. Good seeds can increase yield by 15-20% even without extra inputs.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#e0f2f1">🌿</div>
+          <div class="tip-content">
+            <div class="tip-category">Organic Farming</div>
+            <div class="tip-title">Start with Natural Inputs</div>
+            <div class="tip-desc">Use neem cake (500 kg/ha) for pest control and vermicompost (5 tons/ha) for nutrition. Reduce chemical usage gradually.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#fbe9e7">⚡</div>
+          <div class="tip-content">
+            <div class="tip-category">Harvesting</div>
+            <div class="tip-title">Harvest at Right Time</div>
+            <div class="tip-desc">Harvest when grains have 14-16% moisture. Delayed harvesting can cause 10-15% yield loss due to shattering and pest attack.</div>
+          </div>
+        </div>
+
+        <div class="tip-card">
+          <div class="tip-icon" style="background:#e8eaf6">📊</div>
+          <div class="tip-content">
+            <div class="tip-category">Record Keeping</div>
+            <div class="tip-title">Maintain Farm Records</div>
+            <div class="tip-desc">Track expenses, yields, and pest occurrences. Records help make better decisions and are useful for loans and insurance.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE: CHATBOT ==================== -->
+    <div class="page" id="page-chatbot">
+      <div class="card" style="background:linear-gradient(135deg, var(--green-700), var(--green-500));color:white;border:none">
+        <div style="font-size:14px;font-weight:600">💬 AI Farming Assistant</div>
+        <div style="font-size:12px;opacity:0.9">Ask anything about crops, diseases, fertilizers & more</div>
+      </div>
+
+      <div class="chat-container">
+        <div class="chat-header">
+          <span>🤖</span>
+          <span>AgriScan AI</span>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:4px">
+            <div class="toggle-group" style="background:rgba(255,255,255,0.15);padding:2px;border-radius:6px">
+              <button class="toggle-option active" id="chatLangEn" onclick="setChatbotLang('en')" style="color:rgba(255,255,255,0.8);padding:3px 8px;font-size:10px;background:rgba(255,255,255,0.25);border-radius:4px">EN</button>
+              <button class="toggle-option" id="chatLangHi" onclick="setChatbotLang('hi')" style="color:rgba(255,255,255,0.8);padding:3px 8px;font-size:10px;border-radius:4px">हि</button>
+            </div>
+          </div>
+        </div>
+        <div class="chat-messages" id="chatMessages">
+          <div class="chat-message bot" style="max-width:85%">
+            🌾 Namaste! I am AgriScan. Ask me about crops, diseases, fertilizers, and farming tips!
+          </div>
+        </div>
+        <div class="chat-input-area">
+          <input class="chat-input" id="chatInput" type="text" placeholder="Ask a farming question..." onkeypress="handleChatKeyPress(event)">
+          <button class="chat-send" id="chatSendBtn" onclick="sendChatMessage()">➤</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== PAGE: REPORTS ==================== -->
+    <div class="page" id="page-reports">
+      <div class="card" style="background:linear-gradient(135deg, var(--green-700), var(--green-500));color:white;border:none">
+        <div style="font-size:14px;font-weight:600">📋 Crop Health Reports</div>
+        <div style="font-size:12px;opacity:0.9">History of all your disease detection scans</div>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <div class="card-title">📊 Scan History</div>
+          <button class="btn btn-sm btn-secondary" onclick="clearReports()">🗑️ Clear All</button>
+        </div>
+        <div id="reportsListFull">
+          <div id="reportsList"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL: Report Detail ==================== -->
+    <div class="modal-overlay" id="reportModal">
+      <div class="modal-content" id="reportModalContent">
+        <div class="modal-handle"></div>
+        <div class="modal-title">Loading...</div>
+      </div>
+    </div>
+
+    <!-- ==================== MODAL: Location Picker ==================== -->
+    <div class="modal-overlay" id="locationModal">
+      <div class="modal-content" style="padding-bottom:20px">
+        <div class="modal-handle"></div>
+        <div class="modal-title">📍 Select Your Location</div>
+        <div style="position:relative;margin-bottom:8px">
+          <input type="text" id="locationSearch" placeholder="🔍 Search city or type your location..." style="width:100%;padding:12px 14px;border:2px solid var(--green-200);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;background:var(--warm-white)" oninput="searchLocations(this.value)">
+          <div id="searchSuggestions" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border:1px solid var(--green-200);border-radius:0 0 var(--radius-sm) var(--radius-sm);max-height:200px;overflow-y:auto;z-index:10;box-shadow:var(--shadow-lg)"></div>
+        </div>
+        <button class="btn btn-primary btn-sm" onclick="useDeviceLocation()" style="margin-bottom:8px;font-size:13px;padding:10px">
+          📡 Use My Current Location
+        </button>
+        <div id="cityList" style="max-height:320px;overflow-y:auto"></div>
+        <button class="btn btn-secondary mt-12" onclick="closeModal('locationModal')">Cancel</button>
+      </div>
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+      <button class="nav-item active" data-page="home">
+        <span class="nav-icon">🏠</span>
+        <span class="nav-label">Home</span>
+      </button>
+      <button class="nav-item" data-page="disease">
+        <span class="nav-icon">📸</span>
+        <span class="nav-label">Scan</span>
+      </button>
+      <button class="nav-item" data-page="weather">
+        <span class="nav-icon">🌤️</span>
+        <span class="nav-label">Weather</span>
+      </button>
+      <button class="nav-item" data-page="voice">
+        <span class="nav-icon">🎤</span>
+        <span class="nav-label">Voice</span>
+      </button>
+      <button class="nav-item" data-page="tips">
+        <span class="nav-icon">🌱</span>
+        <span class="nav-label">Tips</span>
+      </button>
+      <button class="nav-item" data-page="chatbot">
+        <span class="nav-icon">💬</span>
+        <span class="nav-label">Chat</span>
+      </button>
+      <button class="nav-item" data-page="reports">
+        <span class="nav-icon">📋</span>
+        <span class="nav-label">Reports</span>
+      </button>
+    </nav>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/disease.js"></script>
+  <script src="js/voice.js"></script>
+  <script src="js/weather.js"></script>
+  <script src="js/chatbot.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/app.js"></script>
+
+  <script>
+    function clearReports() {
+      if (confirm('Delete all health reports?')) {
+        localStorage.removeItem('agriscan_reports');
+        renderReports();
+        loadDashboardData();
+      }
+    }
+  </script>
+</body>
+</html>
